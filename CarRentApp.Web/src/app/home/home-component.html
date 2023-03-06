@@ -1,0 +1,40 @@
+<h1>Car rent app</h1>
+
+<mat-form-field appearance="fill">
+  <mat-label>Pick-up location</mat-label>
+  <mat-select [(ngModel)]="locationId">
+    <mat-option [value]="location.id" *ngFor="let location of locations">{{ location.city }}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<mat-form-field appearance="fill">
+  <mat-label>Enter a date range</mat-label>
+  <mat-date-range-input [rangePicker]="picker">
+    <input matStartDate placeholder="Start date" [(ngModel)]="dateFrom">
+    <input matEndDate placeholder="End date" [(ngModel)]="dateTo">
+  </mat-date-range-input>
+  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+  <mat-date-range-picker #picker></mat-date-range-picker>
+</mat-form-field>
+
+<button class="btn btn-primary" (click)="getAllAvailableCars()">Search</button>
+
+<p *ngIf="loading"><em>Loading...</em></p>
+
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="cars">
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>Price per hour</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let car of cars" (click)="addCar(car)" [class.cars-selected]="car.isSelected">
+      <td>{{ car.model }}</td>
+      <td>{{ car.pricePerHour }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<button class="btn btn-primary" (click)="createReservation()" *ngIf="carsToRent.length > 0">Create reservation</button>
+<div *ngIf="carsToRent.length > 0">Final price: {{ finalPrice }}</div>
