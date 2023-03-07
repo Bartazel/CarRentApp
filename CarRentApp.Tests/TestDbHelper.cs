@@ -33,8 +33,8 @@ namespace CarRentApp.Tests
             {
                 Id = "reservation_id",
                 Cars = new List<Car> { car },
-                From = new DateTime(),
-                To = new DateTime().AddDays(1),
+                From = DateTime.Now,
+                To = DateTime.Now.AddDays(1),
                 Price = 10,
                 PickupLocation = location,
                 ReturnLocation = location

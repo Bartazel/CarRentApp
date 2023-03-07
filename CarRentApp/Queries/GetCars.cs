@@ -18,7 +18,7 @@ namespace CarRentApp.Queries
         {
             List<Car> cars = await _dbContext.Cars
                 .Where(c => ((request.From == null && request.To == null) ||
-                !c.Reservations!.Any(r => request.From <= r.From && request.To >= r.To))
+                !c.Reservations!.Any(r => request.From <= r.To && r.From <= request.To))
                 && (request.LocationId == null || c.Location.Id == request.LocationId))
                 .ToListAsync(cancellationToken);
 

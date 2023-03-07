@@ -2,7 +2,6 @@
 using CarRentApp.Repository;
 using NUnit.Framework;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,6 +9,8 @@ namespace CarRentApp.Tests.QueryTests
 {
     public class GetCarsTests
     {
+        private DateTime _currentTime = DateTime.Now;
+
         [Test]
         public async Task Should_return_cars()
         {
@@ -23,8 +24,8 @@ namespace CarRentApp.Tests.QueryTests
             var handler = new GetCarsHandler(context);
 
             var getCars = new GetCars(
-                new DateTime(),
-                new DateTime(),
+                _currentTime,
+                _currentTime.AddDays(1),
                 "location_id");
 
             var cars = await handler.Handle(getCars, CancellationToken.None);

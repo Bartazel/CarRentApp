@@ -25,7 +25,7 @@ namespace CarRentApp.Commands
 
             if (location == null)
             {
-                throw new AddingCarException("Location was not found.");
+                throw new LocationNotFoundException("Location was not found.");
             }
 
             Car car = new Car()

@@ -22,6 +22,7 @@ namespace CarRentApp.Api.Controllers
         [HttpPost]
         [SwaggerOperation(Summary = "Add a car", OperationId = nameof(Car))]
         [SwaggerResponse(StatusCodes.Status204NoContent, "Car was successfully added")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Location was not found", typeof(ProblemDetails), "application/problem+json")]
         public async Task<IActionResult> Car(
             [FromBody, SwaggerRequestBody("Car request payload", Required = true)] CarRequest model)
         {

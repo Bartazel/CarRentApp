@@ -23,7 +23,10 @@ namespace CarRentApp.Tests.CommandTests
             await handler.Handle(addLocation, CancellationToken.None);
 
             var location = context.Locations.FirstOrDefault();
-            Assert.IsNotNull(location);
+            Assert.That(
+                location != null &&
+                location.City == "city" &&
+                location.Address == "address");
         }
     }
 }

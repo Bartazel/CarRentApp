@@ -16,7 +16,7 @@ namespace CarRentApp.Tests.QueryTests
         }
 
         [Test]
-        public void Should_have_error_when_to_is_smaller_than_from()
+        public void Should_have_error_when_to_is_before_from()
         {
             var getCars = new GetCars(
                 new DateTime().AddDays(1),
@@ -28,7 +28,7 @@ namespace CarRentApp.Tests.QueryTests
         }
 
         [Test]
-        public void Should_not_have_error_when_to_is_bigger_than_from()
+        public void Should_not_have_error_when_to_is_after_from()
         {
             var getCars = new GetCars(
                 new DateTime(),

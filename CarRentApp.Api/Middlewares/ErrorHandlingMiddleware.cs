@@ -23,9 +23,13 @@ namespace CarRentApp.Api.Middlewares
             {
                 await WriteResponse(400, ex.Message, context);
             }
-            catch (AddingCarException ex)
+            catch (LocationNotFoundException ex)
             {
-                await WriteResponse(400, ex.Message, context);
+                await WriteResponse(404, ex.Message, context);
+            }
+            catch (CarNotFoundException ex)
+            {
+                await WriteResponse(404, ex.Message, context);
             }
             catch (ValidationException ex)
             {

@@ -29,16 +29,17 @@ namespace CarRentApp.Tests.CommandTests
 
             await context.SaveChangesAsync();
 
-            var addCar = new AddCar(
-                "model",
-                "brand",
-                10,
-                "location_id");
+            var addCar = createAddCar("location_id");
 
             await handler.Handle(addCar, CancellationToken.None);
 
             var car = context.Cars.FirstOrDefault();
-            Assert.IsNotNull(car);
+            Assert.That(
+                car != null &&
+                car.Model == "model" &&
+                car.Brand == "brand" &&
+                car.PricePerHour == 10 &&
+                car.Location.Id == "location_id");
         }
 
         [Test]
@@ -51,13 +52,19 @@ namespace CarRentApp.Tests.CommandTests
 
             var handler = new AddCarHandler(context);
 
-            var addCar = new AddCar(
+            var addCar = createAddCar("wrong_location_id");
+
+            var ex = Assert.ThrowsAsync(typeof(LocationNotFoundException), () => handler.Handle(addCar, CancellationToken.None));
+            Assert.That(ex?.Message, Is.EqualTo("Location was not found."));
+        }
+
+        public AddCar createAddCar(string locationId)
+        {
+            return  new AddCar(
                 "model",
                 "brand",
                 10,
-                "wrong_location_id");
-
-            Assert.ThrowsAsync(typeof(AddingCarException), () => handler.Handle(addCar, CancellationToken.None));
+                locationId);
         }
     }
 }

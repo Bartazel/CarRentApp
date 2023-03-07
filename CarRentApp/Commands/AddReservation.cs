@@ -26,12 +26,18 @@ namespace CarRentApp.Commands
             var cars = await _dbContext.Cars.Include(c => c.Reservations)
                 .Where(c => request.CarIds.Contains(c.Id))
                 .ToListAsync(cancellationToken);
+
+            if (!cars.Any())
+            {
+                throw new CarNotFoundException("No car was found.");
+            }
+
             decimal price = 0;
 
             foreach(var car in cars) 
             {
                 if (car.Reservations != null 
-                    && car.Reservations.Any(r => r.From <= request.From && r.To >= request.To))
+                    && car.Reservations.Any(r => r.From <= request.To && request.From <= r.To))
                 {
                     throw new AddingReservationException($"Car with id {car.Id} already has a reservation in a give date range.");
                 }
@@ -45,7 +51,7 @@ namespace CarRentApp.Commands
 
             if (pickupLocation == null) 
             {
-                throw new AddingReservationException("Pickup location was not found.");
+                throw new LocationNotFoundException("Pickup location was not found.");
             }
 
             Reservation reservation = new Reservation()

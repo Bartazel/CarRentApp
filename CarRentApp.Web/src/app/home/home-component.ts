@@ -31,8 +31,12 @@ export class HomeComponent {
     }
 
     this.loading = true;
+    let from = 'from=' + this.dateFrom.toISOString();
+    let to = 'to=' + this.dateTo.toISOString();
+    let location = 'locationId=' + this.locationId;
+    let parameters = [from, to, location].join('&');
 
-    this.http.get<Cars[]>(environment.apiUrl + `api/car/?${this.dateFrom.toISOString()}&${this.dateTo.toISOString()}&${this.locationId}`).subscribe(
+    this.http.get<Cars[]>(environment.apiUrl + `api/car/?${parameters}`).subscribe(
       (response) => {
         this.cars = response;
         this.loading = false;

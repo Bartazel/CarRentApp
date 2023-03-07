@@ -7,8 +7,8 @@ namespace CarRentApp.Commands.Validators
         public AddReservationValidator() 
         {
             RuleFor(model => model.CarIds).NotEmpty();
-            RuleFor(model => model.From).NotEmpty();
-            RuleFor(model => model.To).NotEmpty().GreaterThan(model => model.From);
+            RuleFor(model => model.From).NotEmpty().GreaterThanOrEqualTo(DateTime.Now);
+            RuleFor(model => model.To).NotEmpty().GreaterThan(model => model.From).GreaterThanOrEqualTo(DateTime.Now);
             RuleFor(model => model.PickupLocationId).NotEmpty();
         }
     }

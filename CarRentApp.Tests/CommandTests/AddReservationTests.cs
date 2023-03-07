@@ -13,6 +13,30 @@ namespace CarRentApp.Tests.CommandTests
 {
     public class AddReservationTests
     {
+        private DateTime _currentTime = DateTime.Now;
+
+        [Test]
+        public async Task Should_throw_exception_when_car_was_not_found()
+        {
+            using var context = new CarRentAppDbContext(TestDbHelper.Options);
+
+            TestDbHelper.Cleanup(context);
+
+            context.Locations.Add(new Location()
+            {
+                Id = "location_id",
+                City = "city",
+                Address = "address"
+            });
+            await context.SaveChangesAsync();
+
+            var handler = new AddReservationHandler(context);
+            var addReservation = CreateAddReservation("location_id", "location_id");
+
+            var ex = Assert.ThrowsAsync(typeof(CarNotFoundException), () => handler.Handle(addReservation, CancellationToken.None));
+            Assert.That(ex?.Message, Is.EqualTo("No car was found."));
+        }
+
         [Test]
         public void Should_throw_exception_when_car_already_has_reservation()
         {
@@ -22,35 +46,40 @@ namespace CarRentApp.Tests.CommandTests
             TestDbHelper.PopulateData(context);
 
             var handler = new AddReservationHandler(context);
+            var addReservation = CreateAddReservation("location_id", "location_id");
+            var carId = context.Cars.First().Id;
 
-            var addReservation = new AddReservation(
-                new List<string>() { "car_id" },
-                new DateTime(),
-                new DateTime(),
-                "location_id",
-                "location_id");
-
-            Assert.ThrowsAsync(typeof(AddingReservationException), () => handler.Handle(addReservation, CancellationToken.None));
+            var ex = Assert.ThrowsAsync(typeof(AddingReservationException), () => handler.Handle(addReservation, CancellationToken.None));
+            Assert.That(ex?.Message, Is.EqualTo($"Car with id {carId} already has a reservation in a give date range."));
         }
 
         [Test]
-        public void Should_throw_exception_when_pickupLocation_was_not_found()
+        public async Task Should_throw_exception_when_pickupLocation_was_not_found()
         {
             using var context = new CarRentAppDbContext(TestDbHelper.Options);
 
             TestDbHelper.Cleanup(context);
-            TestDbHelper.PopulateData(context);
+
+            context.Cars.Add(new Car()
+            {
+                Id = "car_id",
+                Brand = "brand",
+                Model = "model"
+            });
+            context.Locations.Add(new Location()
+            {
+                Id = "location_id",
+                City = "city",
+                Address = "address"
+            });
+            await context.SaveChangesAsync();
 
             var handler = new AddReservationHandler(context);
 
-            var addReservation = new AddReservation(
-                new List<string>() { "car_id" },
-                new DateTime(),
-                new DateTime(),
-                "wrong_location_id",
-                "location_id");
+            var addReservation = CreateAddReservation("wrong_location_id", "location_id");
 
-            Assert.ThrowsAsync(typeof(AddingReservationException), () => handler.Handle(addReservation, CancellationToken.None));
+            var ex = Assert.ThrowsAsync(typeof(LocationNotFoundException), () => handler.Handle(addReservation, CancellationToken.None));
+            Assert.That(ex?.Message, Is.EqualTo("Pickup location was not found."));
         }
 
         [Test]
@@ -74,20 +103,32 @@ namespace CarRentApp.Tests.CommandTests
                 City = "city",
                 Address = "address"
             });
-
             await context.SaveChangesAsync();
 
-            var addReservation = new AddReservation(
-                new List<string>() { "car_id" },
-                new DateTime(),
-                new DateTime(),
+            var addReservation = CreateAddReservation(
                 "location_id",
                 "location_id");
 
             await handler.Handle(addReservation, CancellationToken.None);
 
             var reservation = context.Reservations.FirstOrDefault();
-            Assert.IsNotNull(reservation);
+            Assert.That(
+                reservation != null &&
+                reservation.Cars.First().Id == "car_id" &&
+                reservation.From.Equals(_currentTime) &&
+                reservation.To.Equals(_currentTime.AddDays(1)) &&
+                reservation.PickupLocation.Id == "location_id" &&
+                reservation.ReturnLocation?.Id == "location_id");
+        }
+
+        private AddReservation CreateAddReservation(string pickupLocationId, string returnLocationId)
+        {
+            return new AddReservation(
+                new List<string>() { "car_id" },
+                _currentTime,
+                _currentTime.AddDays(1),
+                pickupLocationId,
+                returnLocationId);
         }
     }
 }

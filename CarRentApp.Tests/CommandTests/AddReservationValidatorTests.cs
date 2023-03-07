@@ -9,6 +9,7 @@ namespace CarRentApp.Tests.CommandTests
 {
     public class AddReservationValidatorTests
     {
+        private DateTime _currentTime = DateTime.Now;
         private readonly AddReservationValidator _addReservationValidator;
 
         public AddReservationValidatorTests() 
@@ -17,14 +18,12 @@ namespace CarRentApp.Tests.CommandTests
         }
 
         [Test]
-        public void Should_have_error_when_to_is_smaller_than_from()
+        public void Should_have_error_when_to_is_before_from()
         {
-            var addReservation = new AddReservation(
-                new List<string> { "1234" },
-                new DateTime().AddDays(1),
-                new DateTime(),
-                "1234",
-                "1234");
+            var addReservation = CreateAddReservation(
+                new List<string> { "car_id" },
+                _currentTime.AddDays(1),
+                _currentTime);
 
             var response = _addReservationValidator.TestValidate(addReservation);
             response.ShouldHaveValidationErrorFor(r => r.To);
@@ -33,31 +32,40 @@ namespace CarRentApp.Tests.CommandTests
         [Test]
         public void Should_have_error_when_carIds_is_null()
         {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var addReservation = new AddReservation(
+            var addReservation = CreateAddReservation(
                 null,
-                new DateTime().AddDays(1),
-                new DateTime(),
-                "1234",
-                "1234");
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+                _currentTime,
+                _currentTime.AddDays(1));
 
             var response = _addReservationValidator.TestValidate(addReservation);
             response.ShouldHaveValidationErrorFor(r => r.CarIds);
         }
 
         [Test]
-        public void Should_not_have_error_when_to_is_bigger_than_from()
+        public void Should_not_have_error_when_to_is_after_from()
         {
-            var addReservation = new AddReservation(
-                new List<string> { "1234" },
-                new DateTime(),
-                new DateTime().AddDays(1),
-                "1234",
-                "1234");
+            var addReservation = CreateAddReservation(
+                new List<string> { "car_id" },
+                _currentTime,
+                _currentTime.AddDays(1));
 
             var response = _addReservationValidator.TestValidate(addReservation);
             response.ShouldNotHaveValidationErrorFor(r => r.To);
+        }
+
+        private AddReservation CreateAddReservation(
+            List<string>? carIds, 
+            DateTime from, 
+            DateTime to)
+        {
+#pragma warning disable CS8604 // Possible null reference argument.
+            return new AddReservation(
+                carIds,
+                from,
+                to,
+                "location_id",
+                "location_id");
+#pragma warning restore CS8604 // Possible null reference argument.
         }
     }
 }

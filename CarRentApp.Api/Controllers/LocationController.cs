@@ -19,6 +19,8 @@ namespace CarRentApp.Api.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation(Summary = "Add a location", OperationId = nameof(Location))]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Location was successfully added")]
         public async Task<IActionResult> Location(
             [FromBody, SwaggerRequestBody("Location request payload", Required = true)] LocationRequest model)
         {
