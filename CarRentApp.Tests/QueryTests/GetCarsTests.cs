@@ -24,8 +24,8 @@ namespace CarRentApp.Tests.QueryTests
             var handler = new GetCarsHandler(context);
 
             var getCars = new GetCars(
-                _currentTime,
-                _currentTime.AddDays(1),
+                _currentTime.AddDays(2),
+                _currentTime.AddDays(3),
                 "location_id");
 
             var cars = await handler.Handle(getCars, CancellationToken.None);
